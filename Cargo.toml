@@ -1,6 +1,6 @@
 [package]
 name = "serde-with-env"
-description = "This crate provide a way to get value from env after standard serde deserialization."
+description = "Provide a way to get value from env after any serde deserialization."
 version = "0.1.0"
 edition = "2024"
 authors = ["Rinat Balbekov <ribiens@gmail.com>"]

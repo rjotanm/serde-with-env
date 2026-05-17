@@ -1,6 +1,6 @@
 # serde-with-env
 
-This crate provide a way to get value from env after _**any**_ serde deserialization.
+Provide a way to get value from env after _**any**_ serde deserialization.
 
 **attention**: this is alpha version, so not tested as well with some serde functionality.
 
