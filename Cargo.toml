@@ -1,0 +1,19 @@
+[package]
+name = "serde-with-env"
+description = "This crate provide a way to get value from env after standard serde deserialization."
+version = "0.1.0"
+edition = "2024"
+authors = ["Rinat Balbekov <ribiens@gmail.com>"]
+repository = "https://github.com/rjotanm/serde-with-env"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["derive", "proc-macro", "serde", "serialization"]
+categories = ["development-tools::procedural-macro-helpers", "encoding"]
+rust-version = "1.90.0"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["full", "visit", "extra-traits"] }
+quote = "1"
