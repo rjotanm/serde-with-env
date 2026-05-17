@@ -1,13 +1,12 @@
 # serde-with-env
 
-This crate provide a way to get value from env after standard serde deserialization.
+This crate provide a way to get value from env after _**any**_ serde deserialization.
 
 **attention**: this is alpha version, so not tested as well with some serde functionality.
 
 ### Usage
 
-Apply `#[serde_with_env]` to struct.
-And use field attribute `#[with_env(...)]`
+Apply `#[serde_with_env]` to struct and use field attribute `#[with_env(...)]`
 
 We have three workaround variants for processing value:
 - `or` - try value from env when it's not provided in original data; 
@@ -19,7 +18,9 @@ Besides, we have two another option:
 - `convert` - path to method, than validate input from env and can change its type.
   - `fn some_convert_func(val: String) -> Result</* TYPE OF FIELD */, String> { todo!() }`
 
-**note**: be carefully with serde default option, because it calls before trying from env. 
+`#[with_env(or\over\only = "ENV_VAR", default = "literal", convert = "fn path)]`
+
+**note**: be careful with serde default\with (and other) deserialization options on `with_env` fields, because them calls before trying from env.
 
 ```rust
 use serde_with_env::serde_with_env;
@@ -80,9 +81,10 @@ fn main() {
 
 ### How it works?
 
-`serde_with_env` macro manipulate with token input.
+`serde_with_env` macro just manipulate with token input.
 
-First, we crate shadow copy of struct, with Option over `with_env` fields.
+First, macro create shadow copy of struct, with `Option` over `with_env` fields.
+note: you can use `Option<T>` field with `with_env` too.
 ```rust
 #[derive(Debug, serde::Deserialize)]
 pub struct __PostgresConfig {
@@ -97,7 +99,7 @@ pub struct __PostgresConfig {
 }
 ```
 
-Second, we provide serde `try_from` attribute for original struct.
+Second, macro set serde `try_from` attribute for original struct.
 ```rust
 #[derive(Debug, serde::Deserialize)]
 #[serde(try_from = "__serde_with_env__PostgresConfig::__PostgresConfig")]
