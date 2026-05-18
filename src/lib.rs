@@ -96,7 +96,7 @@ pub fn serde_with_env_derive(item: TokenStream) -> TokenStream {
 
                         let missing_err = format!("Missing \"{env_name}\" environment variable.");
                         let parse_err =
-                            format!("Cant parse \"{env_name}\" environment variable: {{err}}");
+                            format!("Cannot parse \"{env_name}\" environment variable: {{err}}");
 
                         let field_as_some = match field_is_option {
                             true => quote! { Ok(Some(v)) },
@@ -145,7 +145,6 @@ pub fn serde_with_env_derive(item: TokenStream) -> TokenStream {
                                 }
                             }
                             EnvAttrOp::Over => {
-                                let missing_err = format!("Value \"{env_name}\" is not provided");
                                 let not_present_error = match (field_is_option, env_default) {
                                     (false, None) => quote! { Err(#missing_err.to_string()) },
                                     _ => not_present_error,

@@ -1,26 +1,26 @@
 # serde-with-env
 
-Provide a way to get value from env after _**any**_ serde deserialization.
+Provides a way to obtain values from the environment after any serde deserialization.
 
-**attention**: this is alpha version, so not tested as well with some serde functionality.
+**Attention**: this is an alpha version, so it has not been thoroughly tested with all serde functionality.
 
 ### Usage
 
-Apply `#[serde_with_env]` to struct and use field attribute `#[with_env(...)]`
+Apply `#[serde_with_env]` to a struct and use the field attribute `#[with_env(...)]`.
 
-We have three workaround variants for processing value:
-- `or` - try value from env when it's not provided in original data; 
-- `over` - try value from env and when not set, get from original data; 
-- `only` - try value from env, value from original data NOT usage.
+There are three variants for value processing:
+- `or` - tries to get the value from the environment when it's not provided in the original data;
+- `over` - tries to get the value from the environment; if not set, falls back to the original data;
+- `only` - tries to get the value from the environment; the value from the original data is NOT used.
 
-Besides, we have two another option:
-- `default` - literal, that can be used, when value does not provide from original data or env;
-- `convert` - path to method, than validate input from env and can change its type.
+Additionally, there are two other options:
+- `default` - a literal that can be used when the value is not provided by the original data or the environment;
+- `convert` - a path to a method that validates input from the environment and can change its type.
   - `fn some_convert_func(val: String) -> Result</* TYPE OF FIELD */, String> { todo!() }`
 
-`#[with_env(or\over\only = "ENV_VAR", default = "literal", convert = "fn path)]`
+`#[with_env(or\over\only = "ENV_VAR", default = "literal", convert = "fn path")]`
 
-**note**: be careful with serde default\with (and other) deserialization options on `with_env` fields, because them calls before trying from env.
+**Note**: be careful with serde's `default`, `with`, and other deserialization options on `with_env` fields, because they are called before the environment is consulted.
 
 ```rust
 use serde_with_env::serde_with_env;
@@ -81,10 +81,10 @@ fn main() {
 
 ### How it works?
 
-`serde_with_env` macro just manipulate with token input.
+The `serde_with_env` macro simply manipulates the token input.
 
-First, macro create shadow copy of struct, with `Option` over `with_env` fields.
-note: you can use `Option<T>` field with `with_env` too.
+First, the macro creates a shadow copy of the struct with `Option` for the `with_env` fields.
+**Note**: you can also use `Option<T>` fields with `with_env`.
 ```rust
 #[derive(Debug, serde::Deserialize)]
 pub struct __PostgresConfig {
@@ -93,18 +93,18 @@ pub struct __PostgresConfig {
     host: Option<String>,
     port: Option<u16>,
     user: Option<String>,
-    // note: password not generated, because only option choice
+    // note: password is not generated because 'only' option is used
     database: Option<String>,
     pub pool_size: usize,
 }
 ```
 
-Second, macro set serde `try_from` attribute for original struct.
+Second, the macro sets the serde `try_from` attribute for the original struct.
 ```rust
 #[derive(Debug, serde::Deserialize)]
 #[serde(try_from = "__serde_with_env__PostgresConfig::__PostgresConfig")]
 pub struct PostgresConfig {
-    /* without changes */
+    /* unchanged */
 }
 ```
 
