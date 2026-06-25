@@ -4,7 +4,7 @@ use crate::attr::{EnvAttr, EnvAttrOp};
 use proc_macro::TokenStream;
 use quote::{ToTokens, format_ident, quote, quote_spanned};
 use syn::spanned::Spanned;
-use syn::{Data, DeriveInput, Fields, Type, parse_macro_input, parse_quote};
+use syn::{Data, DeriveInput, Fields, Type, parse_macro_input, parse_quote, Attribute};
 
 #[proc_macro_attribute]
 pub fn serde_with_env(_: TokenStream, item: TokenStream) -> TokenStream {
@@ -28,9 +28,9 @@ pub fn serde_with_env(_: TokenStream, item: TokenStream) -> TokenStream {
     .into()
 }
 
-// #[with_env(or = "")] - пробуем из env если из основного источника не получилось
-// #[with_env(over = "")] - сначала env - потом из основного источника
-// #[with_env(only = "")] - только из env
+// #[with_env(or = "")] - try from env when params not found in file
+// #[with_env(over = "")] - first env after from file
+// #[with_env(only = "")] - only env
 
 #[proc_macro_derive(SerdeWithEnv, attributes(with_env))]
 pub fn serde_with_env_derive(item: TokenStream) -> TokenStream {
@@ -39,6 +39,12 @@ pub fn serde_with_env_derive(item: TokenStream) -> TokenStream {
 
     let mod_name = format_ident!("__serde_with_env__{}", struct_name);
     let shadow_struct_name = format_ident!("__{}", struct_name);
+
+    let try_from_path = format!("{mod_name}::{shadow_struct_name}");
+    let except_attribute: Attribute = parse_quote!( #[serde(try_from = #try_from_path)]);
+    let attrs = derive_input.attrs.into_iter().filter(|x|
+        &except_attribute != x
+    );
 
     let mut generated_get_env = Vec::new();
     let mut generated_from_fields = Vec::new();
@@ -194,7 +200,7 @@ pub fn serde_with_env_derive(item: TokenStream) -> TokenStream {
         mod #mod_name {
             use super::*;
 
-            #[derive(serde::Deserialize)]
+            #(#attrs)*
             pub struct #shadow_struct_name {
                 #(#generated_fields),*
             }
